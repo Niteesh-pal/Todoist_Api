@@ -6,6 +6,7 @@ const {
   updateATodo,
   deleteATodo,
   deleteAllTodo,
+  getTask,
 } = require('../controllers/todoController.js');
 const router = express.Router();
 
