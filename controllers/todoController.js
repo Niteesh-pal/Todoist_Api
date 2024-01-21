@@ -1,5 +1,4 @@
 const todo = require('../Model/Todo.js');
-const db = require('../config/db_connect.js');
 
 const getAllTodos = (req, res) => {
   try {
@@ -37,7 +36,7 @@ const createTodo = (req, res) => {
       const newTodo = {
         name: name,
         parent_id: parent_id ? parent_id : null,
-        color: color ? color : 'none',
+        color: color ? color : 'charcoal',
         order: order ? order : 0,
         comment_count: comment_count ? comment_count : 0,
         is_shared: is_shared ? is_shared : false,
@@ -98,15 +97,20 @@ const updateATodo = (req, res) => {
 
 const deleteATodo = (req, res) => {
   const id = req.params.id;
-  todo.destroy({ where: { id: id } }).then((num) => {
-    if (num === 1) {
-      res.status(200).json({ message: `Todo deleted successfully` });
-    } else {
-      res
-        .status(500)
-        .send({ message: `Error while deleting Todo of id ${id}` });
-    }
-  });
+  todo
+    .destroy({ where: { id: id } })
+    .then((num) => {
+      if (num === 1) {
+        res.status(200).json({ message: `Todo deleted successfully` });
+      } else {
+        res
+          .status(500)
+          .send({ message: `Error while deleting Todo of id ${id}` });
+      }
+    })
+    .catch((err) =>
+      res.status(500).json({ message: err.message || 'Internal server error' })
+    );
 };
 
 const deleteAllTodo = (req, res) => {
@@ -116,11 +120,9 @@ const deleteAllTodo = (req, res) => {
       res.status(200).json({ message: `${num} Todo deleted successfully` })
     )
     .catch((err) =>
-      res
-        .status(500)
-        .json({
-          message: err.message || 'Some Error occurred while deleting todos',
-        })
+      res.status(500).json({
+        message: err.message || 'Some Error occurred while deleting todos',
+      })
     );
 };
 module.exports = {
