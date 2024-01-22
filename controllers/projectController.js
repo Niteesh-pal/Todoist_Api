@@ -1,54 +1,19 @@
-const todo = require('../Model/Todo.js');
+const project = require('../Model/Poject.js');
 
-const getAllTodos = (req, res) => {
-  try {
-    todo
-      .findAll()
-      .then((data) => res.status(200).json(data))
-      .catch((err) =>
-        res
-          .status(500)
-          .json({ message: err.message || 'Unable to get request' })
-      );
-  } catch (error) {
-    console.log(error.message);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
+const getAllProject = (req, res) => {
+  project
+    .findAll()
+    .then((data) => res.status(200).json(data))
+    .catch((err) =>
+      res.status(500).json({ message: err.message || 'Unable to get request' })
+    );
 };
 
-const createTodo = (req, res) => {
+const createProject = (req, res) => {
   try {
     if (req.body.name) {
-      const {
-        name,
-        parent_id,
-        color,
-        order,
-        comment_count,
-        is_shared,
-        is_favourite,
-        is_inbox_project,
-        is_team_inbox,
-        viewStyle,
-        url,
-      } = req.body;
-
-      const newTodo = {
-        name: name,
-        parent_id: parent_id ? parent_id : null,
-        color: color ? color : 'charcoal',
-        order: order ? order : 0,
-        comment_count: comment_count ? comment_count : 0,
-        is_shared: is_shared ? is_shared : false,
-        is_favourite: is_favourite ? is_favourite : false,
-        is_inbox_project: is_inbox_project ? is_inbox_project : false,
-        is_team_inbox: is_team_inbox ? is_team_inbox : false,
-        viewStyle: viewStyle ? viewStyle : 'list',
-        url: url ? url : '',
-      };
-
-      todo
-        .create(newTodo)
+      project
+        .create(req.body)
         .then((data) => res.send(data))
         .catch((err) => {
           res.status(500).send({
@@ -63,9 +28,9 @@ const createTodo = (req, res) => {
   }
 };
 
-const getATodo = (req, res) => {
+const getProjectById = (req, res) => {
   const id = req.params.id;
-  todo
+  project
     .findByPk(id)
     .then((data) => {
       if (data) {
@@ -77,14 +42,14 @@ const getATodo = (req, res) => {
     .catch((err) => res.status(500).json({ message: `error: ${err.message}` }));
 };
 
-const updateATodo = (req, res) => {
+const updateProjectById = (req, res) => {
   const id = req.params.id;
   console.log(req.body);
-  todo
+  project
     .update(req.body, { where: { id: id } })
     .then((num) => {
-      if (num === 1) {
-        res.status(200).json({ message: 'Updated' });
+      if (num[0] === 1) {
+        res.status(200).json({ message: ' successfully Updated' });
       } else {
         res.status(500).json({ message: `Cannot update Todo with id ${id}` });
       }
@@ -95,9 +60,9 @@ const updateATodo = (req, res) => {
     });
 };
 
-const deleteATodo = (req, res) => {
+const deleteAProject = (req, res) => {
   const id = req.params.id;
-  todo
+  project
     .destroy({ where: { id: id } })
     .then((num) => {
       if (num === 1) {
@@ -113,8 +78,8 @@ const deleteATodo = (req, res) => {
     );
 };
 
-const deleteAllTodo = (req, res) => {
-  todo
+const deleteAllProject = (req, res) => {
+  project
     .destroy({ where: {} })
     .then((num) =>
       res.status(200).json({ message: `${num} Todo deleted successfully` })
@@ -126,10 +91,10 @@ const deleteAllTodo = (req, res) => {
     );
 };
 module.exports = {
-  getAllTodos,
-  createTodo,
-  getATodo,
-  updateATodo,
-  deleteATodo,
-  deleteAllTodo,
+  getAllProject,
+  createProject,
+  getProjectById,
+  updateProjectById,
+  deleteAProject,
+  deleteAllProject,
 };

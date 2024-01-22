@@ -66,7 +66,8 @@ const Task = db.define(
     },
 
     due: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSONB,
+      defaultValue: null,
     },
 
     url: {
@@ -105,5 +106,5 @@ const Task = db.define(
   }
 );
 
-db.sync({ alert: true });
+db.sync();
 module.exports = Task;

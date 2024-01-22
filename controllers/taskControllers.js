@@ -6,30 +6,26 @@ const getAllTask = (req, res) => {
   })
     .then((data) => res.send(data))
     .catch((err) =>
-      res.status(500).json({ message: err.message || 'some error occured' })
+      res.status(500).json({
+        message: `${err.message} from getAlltask ` || 'some error occured',
+      })
     );
 };
 
 const createTask = (req, res) => {
+  const date = new Date();
   if (req.body.content) {
     const newTask = {
+      ...req.body,
       project_id: req.params.projectId,
-      section_id: req.body.section_id,
-      content: req.body.content,
-      description: req.body.description,
-      is_completed: req.body.is_completed,
-      labels: req.body.labels,
-      parent_id: req.body.parent_id,
-      order: req.body.order,
-      priority: req.body.priority,
-      due: req.body.due,
-      url: req.body.url,
-      comment_count: req.body.comment_count,
-      creator_id: req.body.creator_id,
-      assignee_id: req.body.assignee_id,
-      assigner_id: req.body.assigner_id,
+      due: {
+        date: date.getDate(),
+        string: req.body.due_string ? req.body.due_string : '',
+        datetime: date.getUTCDate(),
+        isRecurring: req.body.isRecurring,
+        timezone: req.body.timezone,
+      },
     };
-
     Task.create(newTask)
       .then((data) => {
         res.send(data);
@@ -57,7 +53,7 @@ const getTask = (req, res) => {
     })
     .catch((err) =>
       res.status(500).json({
-        message: err.message || 'some error occured',
+        message: err.message || 'some error occureb0556afb-5d1f-4bb2-8e32-249ddbcfa1e9d',
       })
     );
 };
@@ -124,6 +120,14 @@ const deleteTask = (req, res) => {
       res.status(500).json({ message: err.message || 'Internal server Error' })
     );
 };
+
+const getAllCompleteTask = (req, res) => {
+  Task.findAll({ where: { is_completed: true } })
+    .then((data) => res.status(200).send(data))
+    .catch((err) =>
+      res.status(500).json({ message: err.message || 'Some error has occured' })
+    );
+};
 module.exports = {
   getAllTask,
   createTask,
@@ -132,4 +136,5 @@ module.exports = {
   closeTask,
   reOpenTask,
   deleteTask,
+  getAllCompleteTask,
 };
