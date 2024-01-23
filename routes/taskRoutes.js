@@ -9,7 +9,6 @@ const {
   closeTask,
   getAllCompleteTask,
 } = require('../controllers/taskControllers');
-const { getComment } = require('../controllers/commentController');
 const taskRoute = express.Router();
 
 taskRoute.get('/complete', getAllCompleteTask);
@@ -20,7 +19,5 @@ taskRoute.put('/:taskId', updateTask);
 taskRoute.delete('/:taskId', deleteTask);
 taskRoute.put('/:taskId/close', closeTask);
 taskRoute.put('/:taskId/reopen', reOpenTask);
-
-taskRoute.get('/task/comment', getComment);
 
 module.exports = taskRoute;

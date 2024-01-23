@@ -9,62 +9,46 @@ const validation = (projectId = '', taskId = '') => {
   }
   if (projectId !== '' && projectId.trim() !== '') {
     projectId = projectId.trim();
-    return { projectId, taskId: undefined };
+    return { projectId, taskId: null };
   }
   taskId = taskId.trim();
-  return { projectId: undefined, taskId };
+  return { projectId: null, taskId };
 };
 
-const getAllComment = (req, res) => {
-  Comment.findAll({})
-    .then((data) => res.status(200).send(data))
-    .catch((err) =>
-      res.status(500).json({ message: err.message || 'Some error has occured' })
-    );
-};
-
-const getComment = (req, res) => {
+const getAllComment = (req, res, next) => {
   if (!validation(req.query.projectId, req.query.taskId)) {
-    return res
-      .status(500)
-      .json({ message: 'either projectId or taskId is required' });
+    const error = new Error('projectId or taskId is required');
+    error.statusCode = 400;
+    return next(error);
   }
 
-  const { projectId, taskId } = validation(
+  const { taskId, projectId } = validation(
     req.query.projectId,
     req.query.taskId
   );
 
-  if (projectId !== undefined) {
-    return Comment.findAll({ where: { project_id: projectId } })
-      .then((data) => res.send(data))
-      .catch((err) =>
-        res.status(500).json({ message: err.message || 'some Error occured' })
-      );
-  }
-
-  if (taskId !== undefined) {
-    return Comment.findAll({ where: { task_id: taskId } })
-      .then((data) => res.send(data))
-      .catch((err) =>
-        res.status(500).json({ message: err.message || 'Some error occured' })
-      );
-  }
+  Comment.findAll({ where: { project_id: projectId, task_id: taskId } })
+    .then((data) => res.status(200).json(data))
+    .catch((err) => {
+      if (err.name === 'SequelizeDatabaseError') {
+        const e = new Error('comment not found');
+        e.statusCode = 404;
+        return next(e);
+      }
+      next(new Error(err.message));
+    });
 };
 
-const createComment = (req, res) => {
-  if (!validation(req.query.projectId, req.query.taskId)) {
-    return res
-      .status(500)
-      .json({ message: 'Either project_id or task_id is required' });
+const createComment = (req, res, next) => {
+  if (!validation(req.body.projectId, req.body.taskId)) {
+    const error = new Error('projectId or taskId is required');
+    error.statusCode = 400;
+    return next(error);
   }
 
-  const { projectId, taskId } = validation(
-    req.query.projectId,
-    req.query.taskId
-  );
+  const { projectId, taskId } = validation(req.body.projectId, req.body.taskId);
 
-  if (req.body.content) {
+  if (req.body.content && req.body.content.trim() !== '') {
     const newComment = {
       ...req.body,
       project_id: projectId,
@@ -79,65 +63,97 @@ const createComment = (req, res) => {
 
     Comment.create(newComment)
       .then((data) => res.send(data))
-      .catch((err) => res.status(500).json({ message: err.message }));
+      .catch((err) => next(new Error(err.message)));
   } else {
-    res.status(500).json({ message: 'content is required' });
+    const error = new Error('Content is required');
+    error.statusCode = 400;
+    next(error);
   }
 };
 
-const getCommentById = (req, res) => {
+const getCommentById = (req, res, next) => {
   const id = req.params.commentId;
-  console.log(id);
+
   Comment.findByPk(id)
     .then((data) => {
       if (data) {
-        res.send(data);
-      } else {
-        res.status(500).json({ message: 'Unable to get requested data' });
+        return res.status(200).json(data);
       }
+
+      const error = new Error('comment not found');
+      error.statusCode = 400;
+      next(error);
     })
-    .catch((err) =>
-      res.status(500).json({ message: err.message || 'Some error has occured' })
-    );
+    .catch((err) => {
+      if (err.name === 'SequelizeDatabaseError') {
+        const e = new Error('comment not found');
+        e.statusCode = 404;
+        return next(e);
+      }
+
+      next(new Error(err.message));
+    });
 };
 
-const updateCommentById = (req, res) => {
+const updateCommentById = (req, res, next) => {
   const id = req.params.commentId;
+  const content = req.body.content;
 
-  if (req.body.content && req.body.content.trim()) {
+  if (content && content.trim() != '') {
     Comment.update(
-      { content: req.body.content.trim() },
-      { where: { id: id } }
-    ).then((num) => {
-      if (num[0] === 1) {
-        Comment.findOne({ where: { id: id } })
-          .then((data) => res.send(data))
-          .catch((err) =>
-            res
-              .status(500)
-              .json({ message: err.message || 'Some error occured' })
-          );
-      } else {
-        res.status(500).json({ message: 'Unable to update comment' });
-      }
-    });
+      { ...req.body, content: content },
+      { where: { id: id }, returning: true }
+    )
+      .then((result) => {
+        if (result[0] === 1) {
+          res.status(200).json(result[1]);
+        }
+
+        const error = new Error('comment not found');
+        error.statusCode = 400;
+        next(error);
+      })
+      .catch((err) => {
+        if (err.name === 'SequelizeDatabaseError') {
+          const e = new Error('comment not found');
+          e.statusCode = 404;
+          return next(e);
+        }
+
+        next(new Error(err.message));
+      });
   } else {
-    res.status(500).json({ message: 'content is required' });
+    const error = new Error('content is required');
+    error.statusCode = 400;
+    next(error);
   }
 };
 
-const deleteCommentById = (req, res) => {
+const deleteCommentById = (req, res,next) => {
   const id = req.params.commentId;
   Comment.destroy({ where: { id: id } })
-    .then(() => res.status(204).send())
-    .catch((err) =>
-      res.status(500).json({ message: err.message || 'Some error occured' })
-    );
+    .then((num) => {
+      if (num === 1) {
+        return res.status(204).json({});
+      }
+
+      const error = new Error('comment not found');
+      error.statusCode = 400;
+      next(error);
+    })
+    .catch((err) => {
+      if (err.name === 'SequelizeDatabaseError') {
+        const e = new Error('comment not found');
+        e.statusCode = 404;
+        return next(e);
+      }
+
+      next(new Error(err.message));
+    });
 };
 
 module.exports = {
   getAllComment,
-  getComment,
   createComment,
   getCommentById,
   updateCommentById,

@@ -5,6 +5,7 @@ const { getAllComment } = require('./controllers/commentController.js');
 const labelsRoute = require('./routes/labelsRoute.js');
 const express = require('express');
 const errorHandler = require('./middleware/errorHandler.js');
+const commentRoute = require('./routes/commentRoute.js');
 const app = express();
 
 const PORT = 5000;
@@ -13,7 +14,7 @@ app.use(express.json());
 
 app.use('/rest/v2/project', projectRoutes);
 app.use('/rest/v2/task', taskRoute);
-app.get('/rest/v2/comment/all', getAllComment);
+app.use('/rest/v2/comments', commentRoute);
 
 app.use('/rest/v2/labels', labelsRoute);
 app.all('*', (req, res, next) => {

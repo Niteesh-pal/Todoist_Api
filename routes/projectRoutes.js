@@ -9,18 +9,17 @@ const {
 } = require('../controllers/projectController.js');
 const {
   createComment,
-  getComment,
   getCommentById,
   updateCommentById,
   deleteCommentById,
 } = require('../controllers/commentController.js');
 const router = express.Router();
 
-router.route('/comment').get(getComment);
-router.route('/comment').post(createComment);
-router.route('/comment/:commentId').get(getCommentById);
-router.route('/comment/:commentId').put(updateCommentById);
-router.route('/comment/:commentId').delete(deleteCommentById);
+// router.route('/comment').get(getComment);
+// router.route('/comment').post(createComment);
+// router.route('/comment/:commentId').get(getCommentById);
+// router.route('/comment/:commentId').put(updateCommentById);
+// router.route('/comment/:commentId').delete(deleteCommentById);
 
 router.route('/').get(getAllProject);
 router.route('/').post(createProject);
