@@ -12,7 +12,7 @@ const PORT = 5000;
 app.use(express.json());
 
 app.use('/rest/v2/project', projectRoutes);
-app.use('/rest/v2/project', taskRoute);
+app.use('/rest/v2/task', taskRoute);
 app.get('/rest/v2/comment/all', getAllComment);
 
 app.use('/rest/v2/labels', labelsRoute);
