@@ -1,34 +1,29 @@
 const project = require('../Model/Poject.js');
 
-const getAllProject = (req, res) => {
+const getAllProject = (req, res, next) => {
   project
     .findAll()
     .then((data) => res.status(200).json(data))
-    .catch((err) =>
-      res.status(500).json({ message: err.message || 'Unable to get request' })
-    );
+    .catch((err) => next(new Error(err.message)));
 };
 
-const createProject = (req, res) => {
-  try {
-    if (req.body.name) {
-      project
-        .create(req.body)
-        .then((data) => res.send(data))
-        .catch((err) => {
-          res.status(500).send({
-            message: err.message || 'some error occured',
-          });
-        });
-    } else {
-      return res.status(400).json({ msg: 'name is required' });
-    }
-  } catch (error) {
-    return res.status(500).json({ message: 'Internal Server Error' });
+const createProject = (req, res, next) => {
+  if (req.body.name && req.body.name.trim() !== '') {
+    project
+      .create(req.body)
+      .then((data) => res.send(data))
+      .catch((err) => {
+        return next(new Error(err.message));
+      });
+  } else {
+    const error = new Error('Name is required');
+    error.statusCode = 400;
+
+    next(error);
   }
 };
 
-const getProjectById = (req, res) => {
+const getProjectById = (req, res, next) => {
   const id = req.params.id;
   project
     .findByPk(id)
@@ -36,53 +31,76 @@ const getProjectById = (req, res) => {
       if (data) {
         res.send(data);
       } else {
-        res.status(500).json({ message: 'unable to get data' });
+        const error = new Error('Project not found');
+        error.statusCode = 404;
+        next(error);
       }
     })
-    .catch((err) => res.status(500).json({ message: `error: ${err.message}` }));
+    .catch((err) => {
+      if (err.name === 'SequelizeDatabaseError') {
+        const e = new Error('label not found');
+        e.statusCode = 400;
+        return next(e);
+      }
+
+      next(new Error(err.message));
+    });
 };
 
-const updateProjectById = (req, res) => {
+const updateProjectById = (req, res, next) => {
   const id = req.params.id;
 
   project
-    .findByPk(id)
-    .then((project) => {
-      return project.update(req.body);
+    .update(req.body, { where: { id: id }, returning: true })
+    .then((result) => {
+      if (result[0] === 1) {
+        return res.status(200).json(result[1]);
+      }
+
+      const error = new Error('project not found');
+      error.statusCode = 400;
+      return next(error);
     })
-    .then((project) => {
-      res.send(project);
-    })
-    .catch((err) => res.status(500));
+    .catch((err) => {
+      if (err.name === 'SequelizeDatabaseError') {
+        const e = new Error('Project not found');
+        e.statusCode = 400;
+        return next(e);
+      }
+
+      next(new Error(err.message));
+    });
 };
 
-const deleteAProject = (req, res) => {
+const deleteAProject = (req, res, next) => {
   const id = req.params.id;
   project
     .destroy({ where: { id: id } })
     .then((num) => {
-      if (num === 1) {
-        res.status(200).json({ message: `Project deleted successfully` });
-      } else {
-        res.status(500).send({ message: `Project not found` });
+      if (num == 1) {
+        return res.status(204).json({});
       }
+
+      const error = new Error('Project not found');
+      error.statusCode = 400;
+      next(error);
     })
-    .catch((err) =>
-      res.status(500).json({ message: err.message || 'Internal server error' })
-    );
+    .catch((err) => {
+      if (err.name === 'SequelizeDatabaseError') {
+        const e = new Error('Project not found');
+        e.statusCode = 400;
+        return next(e);
+      }
+
+      next(new Error(err.message));
+    });
 };
 
-const deleteAllProject = (req, res) => {
+const deleteAllProject = (req, res, next) => {
   project
-    .destroy({ where: {} })
-    .then((num) =>
-      res.status(200).json({ message: `${num} Todo deleted successfully` })
-    )
-    .catch((err) =>
-      res.status(500).json({
-        message: err.message || 'Some Error occurred while deleting todos',
-      })
-    );
+    .truncate()
+    .then(() => res.status(200).json({ message: 'All Projects are deleted' }))
+    .catch((err) => next(new Error(err.message)));
 };
 module.exports = {
   getAllProject,
