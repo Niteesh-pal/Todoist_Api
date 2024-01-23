@@ -15,7 +15,7 @@ const Task = db.define(
     project_id: {
       type: DataTypes.STRING,
       defaultValue: null,
-      allowNull: true,
+      allowNull: false,
     },
 
     section_id: {
@@ -37,7 +37,6 @@ const Task = db.define(
     is_completed: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      allowNull: true,
     },
 
     labels: {

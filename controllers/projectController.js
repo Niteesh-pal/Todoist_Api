@@ -44,20 +44,16 @@ const getProjectById = (req, res) => {
 
 const updateProjectById = (req, res) => {
   const id = req.params.id;
-  console.log(req.body);
+
   project
-    .update(req.body, { where: { id: id } })
-    .then((num) => {
-      if (num[0] === 1) {
-        res.status(200).json({ message: ' successfully Updated' });
-      } else {
-        res.status(500).json({ message: `Cannot update Todo with id ${id}` });
-      }
+    .findByPk(id)
+    .then((project) => {
+      return project.update(req.body);
     })
-    .catch((err) => {
-      res.status(500).json({ message: `Unable to update Todo of id ${id}` });
-      console.log(err);
-    });
+    .then((project) => {
+      res.send(project);
+    })
+    .catch((err) => res.status(500));
 };
 
 const deleteAProject = (req, res) => {
@@ -66,11 +62,9 @@ const deleteAProject = (req, res) => {
     .destroy({ where: { id: id } })
     .then((num) => {
       if (num === 1) {
-        res.status(200).json({ message: `Todo deleted successfully` });
+        res.status(200).json({ message: `Project deleted successfully` });
       } else {
-        res
-          .status(500)
-          .send({ message: `Error while deleting Todo of id ${id}` });
+        res.status(500).send({ message: `Project not found` });
       }
     })
     .catch((err) =>

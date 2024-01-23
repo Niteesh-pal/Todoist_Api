@@ -2,7 +2,10 @@ const Task = require('../Model/Task.js');
 
 const getAllTask = (req, res) => {
   Task.findAll({
-    where: { project_id: req.params.projectId, is_completed: false },
+    where: {
+      project_id: req.params.projectId,
+      is_completed: false,
+    },
   })
     .then((data) => res.send(data))
     .catch((err) =>
@@ -19,10 +22,10 @@ const createTask = (req, res) => {
       ...req.body,
       project_id: req.params.projectId,
       due: {
-        date: date.getDate(),
-        string: req.body.due_string ? req.body.due_string : '',
+        date: req.body.due_date,
+        string: req.body.due_string,
         datetime: date.getUTCDate(),
-        isRecurring: req.body.isRecurring,
+        isRecurring: false,
         timezone: req.body.timezone,
       },
     };
@@ -53,7 +56,9 @@ const getTask = (req, res) => {
     })
     .catch((err) =>
       res.status(500).json({
-        message: err.message || 'some error occureb0556afb-5d1f-4bb2-8e32-249ddbcfa1e9d',
+        message:
+          err.message ||
+          'some error occureb0556afb-5d1f-4bb2-8e32-249ddbcfa1e9d',
       })
     );
 };
