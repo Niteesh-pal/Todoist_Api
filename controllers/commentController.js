@@ -1,4 +1,5 @@
-const Comment = require('../Model/Comment.js');
+const db = require('../config/db_connect');
+const Comment = db.Comment;
 
 const validation = (projectId = '', taskId = '') => {
   if (
@@ -40,13 +41,18 @@ const getAllComment = (req, res, next) => {
 };
 
 const createComment = (req, res, next) => {
+  console.log(req.body.projectId, req.body.taskId)
   if (!validation(req.body.projectId, req.body.taskId)) {
     const error = new Error('projectId or taskId is required');
     error.statusCode = 400;
     return next(error);
   }
 
-  const { projectId, taskId } = validation(req.body.projectId, req.body.taskId);
+  const { projectId, taskId } = validation(
+    req.body.projectId,
+    req.body.taskId
+  );
+  console.log(projectId, taskId);
 
   if (req.body.content && req.body.content.trim() !== '') {
     const newComment = {
@@ -129,7 +135,7 @@ const updateCommentById = (req, res, next) => {
   }
 };
 
-const deleteCommentById = (req, res,next) => {
+const deleteCommentById = (req, res, next) => {
   const id = req.params.commentId;
   Comment.destroy({ where: { id: id } })
     .then((num) => {

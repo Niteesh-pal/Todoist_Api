@@ -1,4 +1,5 @@
-const Task = require('../Model/Task.js');
+const db = require("../config/db_connect")
+const Task = db.Task
 
 const getAllTask = (req, res, next) => {
   const projectId = req.query.projectId;

@@ -1,4 +1,5 @@
-const project = require('../Model/Poject.js');
+const db = require("../config/db_connect")
+const project = db.project
 
 const getAllProject = (req, res, next) => {
   project

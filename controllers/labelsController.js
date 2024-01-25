@@ -1,4 +1,6 @@
-const Labels = require('../Model/Labels');
+const db = require('../config/db_connect');
+const Labels = db.Labels;
+
 const getlabels = (req, res) => {
   Labels.findAll()
     .then((data) => res.status(200).json(data))
