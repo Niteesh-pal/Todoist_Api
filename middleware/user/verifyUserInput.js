@@ -54,4 +54,8 @@ const verifySignUp = (req, res, next) => {
     });
 };
 
-module.exports = { verifySignUp };
+
+const verifyLogin = (req, res, next)=>{
+
+}
+module.exports = { verifySignUp , verifyLogin};

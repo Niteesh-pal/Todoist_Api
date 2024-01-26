@@ -30,4 +30,8 @@ const registerUser = async (req, res, next) => {
     });
 };
 
-module.exports = { registerUser };
+const loginUser = async(req, res, next)=>{
+
+}
+
+module.exports = { registerUser,loginUser };
