@@ -1,9 +1,10 @@
-const db = require("../config/db_connect")
-const project = db.project
+const db = require('../config/db_connect');
+const project = db.project;
 
 const getAllProject = (req, res, next) => {
+  const userId = req.userId;
   project
-    .findAll()
+    .findAll({ where: { user_id: userId } })
     .then((data) => res.status(200).json(data))
     .catch((err) => next(new Error(err.message)));
 };
@@ -11,7 +12,7 @@ const getAllProject = (req, res, next) => {
 const createProject = (req, res, next) => {
   if (req.body.name && req.body.name.trim() !== '') {
     project
-      .create(req.body)
+      .create({ ...req.body, user_id: req.userId })
       .then((data) => res.send(data))
       .catch((err) => {
         return next(new Error(err.message));

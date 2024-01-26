@@ -23,10 +23,12 @@ db.Task = require('../Model/Task.js')(sequelize, Sequelize);
 db.Labels = require('../Model/Labels.js')(sequelize, Sequelize);
 db.Comment = require('../Model/Comment.js')(sequelize, Sequelize);
 
-db.User.hasMany(db.project,{
-  foreignKey:"user_id"
+db.User.hasMany(db.project, {
+  foreignKey: 'user_id',
 });
-db.project.belongsTo(db.User);
+db.project.belongsTo(db.User, {
+  foreignKey: 'user_id',
+});
 
 db.project.hasMany(db.Task, {
   foreignKey: 'project_id',

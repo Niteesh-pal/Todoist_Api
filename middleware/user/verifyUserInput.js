@@ -1,4 +1,5 @@
 const db = require('../../config/db_connect');
+const bcrypt = require('bcryptjs');
 const User = db.User;
 
 const verifySignUp = (req, res, next) => {
@@ -54,8 +55,27 @@ const verifySignUp = (req, res, next) => {
     });
 };
 
+const verifyLogin = (req, res, next) => {
+  const { email, password } = req.body;
 
-const verifyLogin = (req, res, next)=>{
+  if (email === undefined || password === undefined) {
+    const error = new Error('Email or Password required');
+    error.statusCode = 400;
+    return next(error);
+  }
 
-}
-module.exports = { verifySignUp , verifyLogin};
+  if (email === '' || email.trim() === '') {
+    const error = new Error('Email required');
+    error.statusCode = 400;
+    return next(error);
+  }
+
+  if (password === '' || password.trim() === '') {
+    const error = new Error('Password required');
+    error.statusCode = 400;
+    return next(error);
+  }
+
+  next()
+};
+module.exports = { verifySignUp, verifyLogin };

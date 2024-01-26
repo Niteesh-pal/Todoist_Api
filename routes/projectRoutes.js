@@ -7,19 +7,8 @@ const {
   getProjectById,
   updateProjectById,
 } = require('../controllers/projectController.js');
-const {
-  createComment,
-  getCommentById,
-  updateCommentById,
-  deleteCommentById,
-} = require('../controllers/commentController.js');
-const router = express.Router();
 
-// router.route('/comment').get(getComment);
-// router.route('/comment').post(createComment);
-// router.route('/comment/:commentId').get(getCommentById);
-// router.route('/comment/:commentId').put(updateCommentById);
-// router.route('/comment/:commentId').delete(deleteCommentById);
+const router = express.Router();
 
 router.route('/').get(getAllProject);
 router.route('/').post(createProject);
