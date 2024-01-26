@@ -3,13 +3,13 @@ const projectRoutes = require('./routes/projectRoutes.js');
 const taskRoute = require('./routes/taskRoutes.js');
 const labelsRoute = require('./routes/labelsRoute.js');
 const commentRoute = require('./routes/commentRoute.js');
+const userRoute = require('./routes/user.routes.js');
 const errorHandler = require('./middleware/errorHandler.js');
 const express = require('express');
 require('dotenv').config();
 const app = express();
 
 const db = require('./config/db_connect.js');
-
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
@@ -20,6 +20,8 @@ db.sequelize
   .then(() => console.log('Synced'))
   .catch((err) => console.log('Failed to sync DB',err));
 
+  
+app.use("/rest/v2/users",userRoute)  
 app.use('/rest/v2/project', projectRoutes);
 app.use('/rest/v2/task', taskRoute);
 app.use('/rest/v2/comments', commentRoute);

@@ -17,10 +17,16 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+db.User = require('../Model/user.model.js')(sequelize, Sequelize);
 db.project = require('../Model/Poject.js')(sequelize, Sequelize);
 db.Task = require('../Model/Task.js')(sequelize, Sequelize);
 db.Labels = require('../Model/Labels.js')(sequelize, Sequelize);
 db.Comment = require('../Model/Comment.js')(sequelize, Sequelize);
+
+db.User.hasMany(db.project,{
+  foreignKey:"user_id"
+});
+db.project.belongsTo(db.User);
 
 db.project.hasMany(db.Task, {
   foreignKey: 'project_id',
