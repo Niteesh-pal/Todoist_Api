@@ -1,5 +1,7 @@
 const db = require('../config/db_connect');
 const Comment = db.Comment;
+const project = db.project;
+const Task = db.Task;
 
 const validation = (projectId = '', taskId = '') => {
   if (
@@ -12,6 +14,7 @@ const validation = (projectId = '', taskId = '') => {
     projectId = projectId.trim();
     return { projectId, taskId: null };
   }
+
   taskId = taskId.trim();
   return { projectId: null, taskId };
 };
@@ -41,18 +44,15 @@ const getAllComment = (req, res, next) => {
 };
 
 const createComment = (req, res, next) => {
-  console.log(req.body.projectId, req.body.taskId)
+  console.log('line61', req.body.projectId, req.body.taskId);
+
   if (!validation(req.body.projectId, req.body.taskId)) {
     const error = new Error('projectId or taskId is required');
     error.statusCode = 400;
     return next(error);
   }
 
-  const { projectId, taskId } = validation(
-    req.body.projectId,
-    req.body.taskId
-  );
-  console.log(projectId, taskId);
+  const { projectId, taskId } = validation(req.body.projectId, req.body.taskId);
 
   if (req.body.content && req.body.content.trim() !== '') {
     const newComment = {

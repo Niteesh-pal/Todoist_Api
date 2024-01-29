@@ -1,5 +1,4 @@
 const db = require('../../config/db_connect');
-const bcrypt = require('bcryptjs');
 const User = db.User;
 
 const verifySignUp = (req, res, next) => {
@@ -69,7 +68,6 @@ const verifyLogin = (req, res, next) => {
     error.statusCode = 400;
     return next(error);
   }
-
   if (password === '' || password.trim() === '') {
     const error = new Error('Password required');
     error.statusCode = 400;

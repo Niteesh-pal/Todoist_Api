@@ -51,13 +51,24 @@ const loginUser = async (req, res, next) => {
 
     res.send([
       {
-        id: user.id,
-        username: user.username,
-        email: user.email,
         token: token,
       },
     ]);
   });
 };
 
-module.exports = { registerUser, loginUser };
+const deleteUser = (req, res, next) => {
+  User.destroy({where:{id:req.params.id}})
+    .then((num) => {
+      if (num === 1) {
+        res.status(204).json({});
+      }
+
+      next(new Error('user not found'));
+    })
+    .catch((error) => {
+      next(new Error(error.message));
+    });
+};
+
+module.exports = { registerUser, loginUser, deleteUser };

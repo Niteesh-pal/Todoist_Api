@@ -53,7 +53,10 @@ const updateProjectById = (req, res, next) => {
   const id = req.params.id;
 
   project
-    .update(req.body, { where: { id: id }, returning: true })
+    .update(req.body, {
+      where: { id: id, user_id: req.userId },
+      returning: true,
+    })
     .then((result) => {
       if (result[0] === 1) {
         return res.status(200).json(result[1]);
@@ -77,7 +80,7 @@ const updateProjectById = (req, res, next) => {
 const deleteAProject = (req, res, next) => {
   const id = req.params.id;
   project
-    .destroy({ where: { id: id } })
+    .destroy({ where: { id: id, user_id: req.userId } })
     .then((num) => {
       if (num == 1) {
         return res.status(204).json({});
@@ -100,7 +103,7 @@ const deleteAProject = (req, res, next) => {
 
 const deleteAllProject = (req, res, next) => {
   project
-    .truncate()
+    .destroy({ where: { user_id: req.userId } })
     .then(() => res.status(200).json({ message: 'All Projects are deleted' }))
     .catch((err) => next(new Error(err.message)));
 };

@@ -1,4 +1,4 @@
-const { UUIDV4 } = require('sequelize');
+
 
 module.exports = (sequelize, DataTypes) => {
   const Users = sequelize.define(

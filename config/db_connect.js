@@ -25,6 +25,7 @@ db.Comment = require('../Model/Comment.js')(sequelize, Sequelize);
 
 db.User.hasMany(db.project, {
   foreignKey: 'user_id',
+  onDelete: 'CASCADE',
 });
 db.project.belongsTo(db.User, {
   foreignKey: 'user_id',
@@ -32,6 +33,7 @@ db.project.belongsTo(db.User, {
 
 db.project.hasMany(db.Task, {
   foreignKey: 'project_id',
+  onDelete: 'CASCADE',
 });
 db.Task.belongsTo(db.project, {
   foreignKey: 'project_id',
@@ -39,6 +41,7 @@ db.Task.belongsTo(db.project, {
 
 db.project.hasMany(db.Comment, {
   foreignKey: 'project_id',
+  onDelete: 'CASCADE',
 });
 db.Comment.belongsTo(db.project, {
   foreignKey: 'project_id',
@@ -46,6 +49,7 @@ db.Comment.belongsTo(db.project, {
 
 db.Task.hasMany(db.Comment, {
   foreignKey: 'task_id',
+  onDelete: 'CASCADE',
 });
 db.Comment.belongsTo(db.Task, {
   foreignKey: 'task_id',

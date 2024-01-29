@@ -6,6 +6,7 @@ const commentRoute = require('./routes/commentRoute.js');
 const userRoute = require('./routes/user.routes.js');
 const errorHandler = require('./middleware/errorHandler.js');
 const cookieparser = require('cookie-parser');
+const morgan = require('morgan');
 const express = require('express');
 
 require('dotenv').config();
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cookieparser());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('tiny'));
 
 db.sequelize
   .sync()

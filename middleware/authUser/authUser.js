@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const util = require('util');
 const db = require('../../config/db_connect');
+
 const authUser = async (req, res, next) => {
   const testToken = req.headers.authorization;
 
@@ -16,12 +17,9 @@ const authUser = async (req, res, next) => {
   }
 
   try {
-    const decodedToken = await util.promisify(jwt.verify)(
-      token,
-      process.env.TOKEN_SECRET_STRING
-    );
+    const { id } = jwt.verify(token, process.env.TOKEN_SECRET_STRING);
 
-    const user = await db.User.findByPk(decodedToken.id);
+    const user = await db.User.findByPk(id);
 
     if (!user) {
       const error = new Error('User does not exist');
@@ -29,20 +27,22 @@ const authUser = async (req, res, next) => {
       return next(error);
     }
 
-    req.userId = decodedToken.id;
+    req.userId = id;
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
       const error = new Error('Invalid token, Please login again');
       error.statusCode = 401;
-      next(error);
+      return next(error);
     }
+
     if (error.name === 'TokenExpiredError') {
       const error = new Error('Token Expired, Please login again');
       error.statusCode = 401;
-      next(error);
+      return next(error);
     }
-    console.log(error);
+
+    next(new Error(error.message));
   }
 };
 
